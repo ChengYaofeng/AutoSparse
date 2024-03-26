@@ -12,7 +12,7 @@
 
 import torch
 import torch.nn as nn
-from Layers import layers
+from utils import layers
 
 cfg = {
     'A' : [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],

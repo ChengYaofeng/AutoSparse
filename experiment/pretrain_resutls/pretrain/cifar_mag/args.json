@@ -1,0 +1,9 @@
+{
+    "cfg": "cfgs/autos.yaml",
+    "experiment": "pretrain",
+    "expid": "cifar_mag",
+    "gpu": 0,
+    "result_dir": "experiment/pretrain_resutls/pretrain/cifar_mag",
+    "save": true,
+    "workers": 4
+}

@@ -1,0 +1,5 @@
+2024-03-25 14:58:38,592 - singleshot - INFO - Loading cifar100 dataset.
+2024-03-25 14:58:40,318 - singleshot - INFO - Creating lottery-vgg19-bn model.
+2024-03-25 14:58:42,302 - singleshot - INFO - Pre-Train for 0 epochs.
+2024-03-25 14:58:43,442 - singleshot - INFO - Pruning with snip for 40 epochs.
+2024-03-25 14:58:43,698 - singleshot - INFO - ----------prune epoch0----------

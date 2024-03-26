@@ -1,0 +1,15 @@
+
+train:
+  model: 'resnet18'
+  dataset: 'cifar10'
+  method: 'mag'
+  epoch: 10
+  save_name: 'cifar10_res18_20it_not_percent_mag_important-2024-03-15-16-23'
+  # data: None
+
+policy:
+  prediction_model: 'resnet18'
+  gpu: 0
+  batch_size: 128
+  lr: 0.0005
+  epochs: 20

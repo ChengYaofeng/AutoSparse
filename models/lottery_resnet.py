@@ -7,7 +7,7 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
-from Layers import layers
+from utils import layers
 
 
 class Block(nn.Module):

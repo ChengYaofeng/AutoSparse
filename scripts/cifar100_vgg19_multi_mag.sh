@@ -22,7 +22,7 @@ python main.py --experiment 'singleshot' \
                 --pruner "snip" \
                 --weight-decay '0.0001' \
                 --singleshot_compression  1 \
-                --run_choice 'prediction_prune'\
+                --run_choice 'prune_prediction'\
                 --prediction_network '/home/cyf/sparsity/AutoSparse/prediction_model/resnet18/resnet18/cifar10/snip/cifar10_res18_40it_snip_important-2024-01-21-14-22resnet182024-02-18-09-53/model.pth.tar'
 
 

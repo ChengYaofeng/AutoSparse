@@ -1,6 +1,6 @@
 import argparse
 
-def get_args():
+def get_prune_args():
     parser = argparse.ArgumentParser(description='Network Pruining')
     
     # Training arguments
@@ -89,8 +89,8 @@ def get_args():
                         help='experiment name (default: example)')
     parser.add_argument('--expid', type=str, default='',
                         help='name used to save results (default: "")')
-    parser.add_argument('--result-dir', type=str, default='Results/data',
-                        help='path to directory to save results (default: "Results/data")')
+    parser.add_argument('--result-dir', type=str, default='experiment/prune_resutls',
+                        help='path to directory to save results (default: "experiment/prune_resutls")')
     parser.add_argument('--gpu', type=int, default='0',
                         help='number of GPU device to use (default: 0)')
     parser.add_argument('--workers', type=int, default='4',
@@ -105,9 +105,55 @@ def get_args():
                         help='prediction network path')
     parser.add_argument('--save_important', type=str, default=None,
                         help='save important in one or not')
-    parser.add_argument('--run_choice', type=str, default='train_important',choices=['train_important','prune_once','prediction_prune'])
+    parser.add_argument('--run_choice', type=str, default='prune_iterative',choices=['prune_iterative','prune_once','prune_prediction'])
     parser.add_argument('--singleshot_compression', type=float, nargs='*', default=[],
                         help='list of number of prune-train cycles (levels) for multishot (default: [])')
+    args = parser.parse_args()
+    
+    return args
+
+
+def get_pretrain_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--train_data",default=None, type=str)#1.2e-3
+    parser.add_argument("--train_epoch", default=10, type=int)
+    parser.add_argument("--batch_size", default=1024, type=int)
+    parser.add_argument("--lr", default=0.0005, type=float)
+    parser.add_argument("--train_data_model", default=None, type=str)
+    parser.add_argument("--train_data_dataset", default=None, type=str)
+    parser.add_argument("--train_data_method", default=None, type=str)
+    parser.add_argument("--name", default=None, type=str)          
+    parser.add_argument("--prediction_model", default=None, type=str)
+    
+    ## Experiment Hyperparameters ##
+    parser.add_argument('--experiment', type=str, default='pretrain',
+                        help='experiment name (default: example)')
+    parser.add_argument('--expid', type=str, default='',
+                        help='name used to save results (default: "")')
+    parser.add_argument('--result-dir', type=str, default='experiment/pretrain_resutls',
+                        help='path to directory to save results (default: "experiment/pretrain_resutls")')
+    parser.add_argument('--gpu', type=int, default='0',
+                        help='number of GPU device to use (default: 0)')
+    parser.add_argument('--workers', type=int, default='4',
+                        help='number of data loading workers (default: 4)')
+    args = parser.parse_args()
+    
+    return args
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--experiment', type=str, default='pretrain',
+                        help='experiment name (default: example)')
+    parser.add_argument('--expid', type=str, default='',
+                        help='name used to save results (default: "")')
+    parser.add_argument('--result-dir', type=str, default='experiment/pretrain_resutls',
+                        help='path to directory to save results (default: "experiment/pretrain_resutls")')
+    parser.add_argument('--gpu', type=int, default='0',
+                        help='number of GPU device to use (default: 0)')
+    parser.add_argument('--workers', type=int, default='4',
+                        help='number of data loading workers (default: 4)')
+    parser.add_argument('--cfg', type=str, default=None,
+                        help='config file path')
     args = parser.parse_args()
     
     return args

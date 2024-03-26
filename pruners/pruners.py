@@ -4,6 +4,11 @@ from torch.nn import functional as F
 
 class Pruner:
     def __init__(self, masked_params):
+        '''
+        base prune class
+        Input:
+            masked_params: {generator data(Tensor)} masks and parameters
+        '''
         self.masked_params = list(masked_params)
         self.scores = {}
         self.dict = {}
