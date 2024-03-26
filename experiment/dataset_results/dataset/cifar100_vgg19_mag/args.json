@@ -1,0 +1,9 @@
+{
+    "cfg": "cfgs/dataset/cifar100_vgg19/mag_prune.yaml",
+    "experiment": "dataset",
+    "expid": "cifar100_vgg19_mag",
+    "gpu": 0,
+    "result_dir": "experiment/dataset_results/dataset/cifar100_vgg19_mag",
+    "save": true,
+    "workers": 4
+}

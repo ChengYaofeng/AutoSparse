@@ -41,19 +41,21 @@ def main():
     ## Run Experiment
     if args.experiment == 'prune':
         print("Pruning")
-        for i in range(10):                       #这里循环的意思是
-            runner_prune.run(cfgs, i)
+        runner_prune.run(cfgs)
     
     elif args.experiment == 'pretrain':
         print("Pretraining")
         runner_autostrain.run(cfgs)
     
+    elif args.experiment == 'dataset':
+        print("Generating Dataset")
+        runner_prune.run(cfgs)
+        
     else:
         raise ValueError("Invalid process")
 
 
 if __name__ == '__main__':
-    
     main()
     
     

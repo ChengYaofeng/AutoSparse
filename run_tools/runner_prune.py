@@ -14,12 +14,13 @@ def checkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def run(cfgs, steps):
+def run(cfgs):
     '''
     Input:
         cfgs: {dict}, config params
-        steps: {int}, 这里是循环的步数，是不是能放到函数里面
     '''
+    
+    steps = 10 #后面看看在哪里单独指定
    
     # cfgs
     train_cfgs = cfgs['train']
@@ -34,10 +35,12 @@ def run(cfgs, steps):
     
     # log & save path
     timestamp = time.localtime()
-    formatted_time = time.strftime("%Y%m%d-%H-%M", timestamp)
+    formatted_time = time.strftime("%Y%m%d-%H%M", timestamp)
     file_name = f"{policy_cfgs['expid']}-{formatted_time}"           # 这里有点啰嗦
-    log_path = f"{os.getcwd()}/log/{train_cfgs['model']}/{train_cfgs['dataset']}/{policy_cfgs['run_choice']}/"
-    save_path = f"{os.getcwd()}/prune_result/{train_cfgs['model']}/{train_cfgs['dataset']}/{policy_cfgs['run_choice']}/{file_name}/"   # 这里直接放到prune_result里面好吗
+    base_path = f"{train_cfgs['model']}/{train_cfgs['dataset']}/{policy_cfgs['run_choice']}"
+    dataset_path = f"'autos_dataset'/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}"
+    log_path = f"{os.getcwd()}/log/{base_path}"
+    save_path = f"{os.getcwd()}/prune_result/{base_path}/{file_name}/"   # 这里直接放到prune_result里面好吗
     checkdir(log_path)
     checkdir(save_path)
     
@@ -74,7 +77,7 @@ def run(cfgs, steps):
     masked_params = generator.masked_parameters(model, prune_cfgs['prune_bias'], prune_cfgs['prune_batchnorm'], prune_cfgs['prune_residual']) #mask & params
     pruner = loader.pruner(prune_cfgs['pruner'])(masked_params)
     
-    if policy_cfgs['run_choice'] == 'prune_iterative':#'train_important','prune_once','prediction_prune' 这里的分类是？迭代剪枝，单次剪枝，预测剪枝
+    if policy_cfgs['run_choice'] == 'prune_iterative': #'train_important','prune_once','prediction_prune' 这里的分类是？迭代剪枝，单次剪枝，预测剪枝
         sparse  = 0.01
         prediction_model = None
         prune_cfgs['prune_epochs'] = 20
@@ -86,9 +89,9 @@ def run(cfgs, steps):
                 p = data['param'][idx].to(device)
                 pruner.dict['importants'][idx] = data['importants'][idx].to(device)     #这里放的是？
         else:
-            checkdir(f"{os.getcwd()}/dumps/{train_cfgs['model']}/{train_cfgs['dataset']}/{train_cfgs['pruner']}/{file_name}/")
-            torch.save(model.state_dict(),"{}/before_train_model.pt".format(f"{os.getcwd()}/dumps/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}/"))
-            cfgs['save_important'] = f"{os.getcwd()}/dumps/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}/data.pkl"  # 更新了命令行参数
+            checkdir(f"{os.getcwd()}/{dataset_path}")
+            torch.save(model.state_dict(),"{}/before_train_model.pt".format(f"{os.getcwd()}/{dataset_path}"))
+            cfgs['save_important'] = f"{os.getcwd()}/{dataset_path}/data.pkl"  # 更新了命令行参数
             
     elif policy_cfgs['run_choice'] == 'prune_once':
         sparse = policy_cfgs['singleshot_compression'][steps]
@@ -148,11 +151,11 @@ def run(cfgs, steps):
     if policy_cfgs['save_important'] is not None:
         for key, tensor_list in pruner.dict.items():
             pruner.dict[key] = [tensor.cpu() for tensor in tensor_list]
-        checkdir(f"{os.getcwd()}/dumps/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}/")
+        checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             pickle.dump(pruner.dict, fp)     
     
-    print_log(f"data saved at {os.getcwd()}/dumps/{train_cfgs['model']}/{train_cfgs['dataset']}/{file_name}/data.pkl", logger=logger)
+    print_log(f"data saved at {os.getcwd()}/{dataset_path}/data.pkl", logger=logger)
     if policy_cfgs['save']:
         print(f"Saving results.at{save_path}")
         pre_result.to_pickle("{}/pre-train.pkl".format(save_path))

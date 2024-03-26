@@ -1,0 +1,56 @@
+
+train:
+  dataset: 'cifar100'  #'mnist','cifar10','cifar100','tiny-imagenet','imagenet'
+  model: 'vgg19' #'conv','fc1',
+              # 'vgg11','vgg11-bn','vgg13','vgg13-bn','vgg16','vgg16-bn','vgg19','vgg19-bn',
+              # 'resnet18','resnet20','resnet32','resnet34','resnet44','resnet50',
+              # 'resnet56','resnet101','resnet110','resnet110','resnet152','resnet1202',
+              # 'wide-resnet18','wide-resnet20','wide-resnet32','wide-resnet34','wide-resnet44','wide-resnet50',
+              # 'wide-resnet56','wide-resnet101','wide-resnet110','wide-resnet110','wide-resnet152','wide-resnet1202'
+  model_class: lottery #'default','lottery','tinyimagenet','imagenet'
+  dense_classifier: False
+  pretrained: False
+  optimizer: 'momentum' #'sgd','momentum','adam','rms'
+  train_batch_size: 128
+  test_batch_size: 256
+  pre_epochs: 0
+  post_epochs: 160
+  lr: 0.001
+  lr_drops: [60, 120]
+  lr_drop_rate: 0.1
+  weight_decay: 0.0001
+
+prune:
+  pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
+  compression: 0.0
+  compression_schedule: exponential #'linear','exponential'
+  prune_epochs: 40
+  mask_scope: 'global' #'global','local'
+  prune_dataset_ratio: 10
+  prune_batch_size: 256
+  prune_bias: False
+  prune_batchnorm: False
+  prune_residual: False
+  prune_train_mode: False
+  reinitialize: False
+  rewind: False
+  shuffle: False
+  invert: False
+  pruner_list: []
+  prune_epoch_list: []
+  compression_list: []
+  level_list: []
+
+policy:
+  experiment: prune #pretrain
+  expid: 'cifar100_vgg19_40it_snip_important'
+  result_dir: 'experiment/prune_resutls'
+  gpu: 0
+  workers: 4
+  seed: 0
+  verbose: False
+  prediction_network: None
+  save_important: False
+  run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
+  singleshot_compression : []
+  
