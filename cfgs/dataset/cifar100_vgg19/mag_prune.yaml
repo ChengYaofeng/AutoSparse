@@ -50,7 +50,8 @@ policy:
   seed: 0
   verbose: False
   prediction_network: None
-  save_important: False
+  save_important: None
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
   singleshot_compression : []
+  cfgs_dir: 'cfgs'   #cfgs save path
   

@@ -20,7 +20,7 @@ def run(cfgs):
         cfgs: {dict}, config params
     '''
     
-    steps = 10 #后面看看在哪里单独指定
+    steps = 0 #后面看看在哪里单独指定  10
    
     # cfgs
     train_cfgs = cfgs['train']
@@ -37,10 +37,10 @@ def run(cfgs):
     timestamp = time.localtime()
     formatted_time = time.strftime("%Y%m%d-%H%M", timestamp)
     file_name = f"{policy_cfgs['expid']}-{formatted_time}"           # 这里有点啰嗦
-    base_path = f"{train_cfgs['model']}/{train_cfgs['dataset']}/{policy_cfgs['run_choice']}"
-    dataset_path = f"'autos_dataset'/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}"
-    log_path = f"{os.getcwd()}/log/{base_path}"
-    save_path = f"{os.getcwd()}/prune_result/{base_path}/{file_name}/"   # 这里直接放到prune_result里面好吗
+    result_dir = policy_cfgs['result_dir']
+    dataset_path = f"autos_dataset/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}"
+    log_path = f"{os.getcwd()}/{result_dir}"
+    save_path = f"{os.getcwd()}/{result_dir}/save/"   # 这里直接放到prune_result里面好吗
     checkdir(log_path)
     checkdir(save_path)
     
@@ -115,9 +115,12 @@ def run(cfgs):
         sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
         # 稀疏的比例，上面的是按照特定的数量稀疏
         
+        # 15s
+        #start_time = time.time()
         prune.prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
                 prune_cfgs['compression_schedule'], prune_cfgs['mask_scope'], 1, prune_cfgs['reinitialize'], prune_cfgs['prune_train_mode'], 
                 prune_cfgs['shuffle'], prune_cfgs['invert'], prune_cfgs['rewind'], prediction_model=prediction_model)
+        # print_log(f"Pruning time:{'-'*20} {time.time() - start_time}", logger=logger)
         
         optimizer = opt_class(generator.parameters(model), lr=train_cfgs['lr'], weight_decay=train_cfgs['weight_decay'], **opt_kwargs)
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=train_cfgs['lr_drops'], gamma=train_cfgs['lr_drop_rate'])

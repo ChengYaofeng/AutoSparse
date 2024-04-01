@@ -20,7 +20,7 @@ python main.py --experiment 'singleshot' \
                 --prune-epochs '20' \
                 --pruner "mag" \
                 --weight-decay '0.0005' \
-                --singleshot_compression 0.316 \
+                --singleshot_compression 0.316 0 0 0\
                 --seed 1 \
                 --run_choice 'prediction_iterative'\
                 --prediction_network '/home/liushengkai/Synaptic-Flow/prediction_model/resnet18/try.pth.tar'

@@ -11,7 +11,7 @@ def load_config(args):
         cfgs = yaml.load(f, Loader=yaml.SafeLoader)
     
     # update config with args
-    
+    cfgs['policy']['result_dir'] = args.result_dir
         
     
     return cfgs

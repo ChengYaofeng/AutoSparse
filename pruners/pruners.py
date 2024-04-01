@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from torch.nn import functional as F
+from time import time
 
 class Pruner:
     def __init__(self, masked_params):
@@ -29,13 +30,82 @@ class Pruner:
             rewind: {bool}, whether to rewind to initial weights
         '''
         
-        1
+        # threshold scores
+        global_scores = torch.cat([torch.flatten(torch.masked_select(v, v != 0)) for v in self.scores.values()])
         
+        sparse_k = int((1 - sparsity) * global_scores.numel())
+        
+        if not sparse_k < 1:
+            threshold, _ = torch.kthvalue(global_scores, sparse_k)
+            for idx, (mask, param) in enumerate(self.masked_params):
+                score = self.scores[id(param)]
+                zero = torch.zeros_like(mask, device=mask.device)
+                one = torch.ones_like(mask, device=mask.device)
+                mask.data = (torch.where(score <= threshold, zero, one))
+                if rewind == True:
+                    param.data = (torch.where(score <= threshold, zero, self.dict['params'][idx]))
+        
+        self.apply_mask()
+                
+    
+    @torch.no_grad()
+    def apply_mask(self):
+        '''
+        Applies mask to prunable parameters.
+        '''        
+        for mask, param in self.masked_params:
+            param.mul_(mask)
+        
+        
+    def mask(self, sparsity, scope, rewind):
+        '''
+        Updates masks of model with scores by sparsity according to scope
+        '''
+        if scope == 'global':
+            self._global_mask(sparsity, rewind)
+        if scope == 'local':
+            self._local_mask(sparsity)
+        self.important()
+        
+    
+    def stats(self):
+        '''
+        Returns remaining and total number of prunable parameters. #detach().cpu().numpy().
+        '''
+        remaining_params, total_params = 0, 0
+        for mask, _ in self.masked_params:
+            remaining_params += mask.sum()
+            total_params += mask.numel()
+        return remaining_params, total_params
+        
+    
+    def important(self):
+        '''
+        Updates important scores
+        '''
+        for idx, (mask, _) in enumerate(self.masked_params):
+            self.dict['importants'][idx] += torch.clone(mask.data).detach()
+    
+    
+    def init_p_grad(self, model, loss, dataloader, device):
+        '''
+        Initializes gradients of masked parameters.
+        '''
+        if self.x == 0:
+            for batch_idx, (data, target) in enumerate(dataloader):
+                data, target = data.to(device), target.to(device)
+                output = model(data)
+                loss(output, target).backward()
+            
+            self.dict['grad'] = [torch.clone(p.grad.data).detach() for (_, p) in self.masked_params]
+            print('gradient init')
+        self.x += 1
+        print(f'x: {self.x}')
 
 
 class Random(Pruner):
     def __init__(self, masked_params):
-        super(Random).__init__(masked_params)
+        super(Random, self).__init__(masked_params)
         
     def score(self, model, loss, dataloader, device):
         for _, p in self.masked_params:
@@ -44,7 +114,7 @@ class Random(Pruner):
             
 class Magnitude(Pruner):
     def __init__(self, masked_params):
-        super(Magnitude).__init__(masked_params)
+        super(Magnitude, self).__init__(masked_params)
     
     def score(self, model, loss, dataloader, device):
         for _, p in self.masked_params:
