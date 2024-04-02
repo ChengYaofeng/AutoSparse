@@ -10,25 +10,37 @@ from autos_model.autosnet import MLP, ResNet18, Vgg19, BiT
 from run_utils.logger import get_root_logger, print_log
 from utils.data_visual import predict_error_visual
 
+
+def checkdir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        
+        
 def run(cfgs):
     
     train_cfgs = cfgs['train']
+    prune_cfgs = cfgs['prune']
     policy_cfgs = cfgs['policy']
     
     # path
     timestamp = time.localtime()
     formatted_time = time.strftime("%Y%m%d-%H-%M", timestamp)
+    file_name = f"{policy_cfgs['expid']}-{formatted_time}"
     root = os.getcwd()
-    data_load_path = os.path.join(root, 'dumps', train_cfgs['model'], train_cfgs['dataset'], train_cfgs['method'], train_cfgs['save_name'], 'data.pkl')
-    prediction_model_path = os.path.join(root,'prediction_model', policy_cfgs['prediction_model'], train_cfgs['model'], train_cfgs['dataset'], 
-                                         train_cfgs['method'], train_cfgs['save_name'], formatted_time)
-    if not os.path.exists(prediction_model_path):
-        os.makedirs(prediction_model_path)
+    result_dir = policy_cfgs['result_dir']
+    dataset_path = f"autos_dataset/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}"
+    data_load_path = os.path.join(root, dataset_path, 'data.pkl')
+
+    log_path = os.path.join(root, result_dir)
+    model_save_path = os.path.join(root, result_dir, file_name)
+    checkdir(log_path)
+    checkdir(model_save_path)
         
     device = torch.device(("cuda:" + str(policy_cfgs['gpu'])) if torch.cuda.is_available() else "cpu")
     
     # log & save path
-    logger = get_root_logger(os.path.join(prediction_model_path, 'log.log'), name='autos_network')
+    log_file = os.path.join(f'{log_path}/{file_name}.log')
+    logger = get_root_logger(log_file, name='autos_network')
     save_dict = {}
     save_dict['train_loss'] = []
     save_dict['test_loss'] = []
@@ -103,10 +115,11 @@ def run(cfgs):
         
             avg_loss = total_loss / len(test_dataloader)
             
-            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(prediction_model_path, 'after'))
+            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path
+    , 'after'))
     
     save_dict['test_loss'] = avg_loss
     
-    torch.save(save_dict, os.path.join(prediction_model_path, 'result.pth'))   #后面画图loss
-    torch.save(model, os.path.join(prediction_model_path, 'model.pth'))
+    torch.save(save_dict, os.path.join(model_save_path, 'result.pth'))   #后面画图loss
+    torch.save(model, os.path.join(model_save_path, 'model.pth'))
 

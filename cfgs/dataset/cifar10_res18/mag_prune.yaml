@@ -11,11 +11,11 @@ train:
   dense_classifier: False
   pretrained: False
   optimizer: 'momentum' #'sgd','momentum','adam','rms'
-  train_batch_size: 128
+  train_batch_size: 32
   test_batch_size: 256
   pre_epochs: 0
   post_epochs: 160
-  lr: 0.001
+  lr: 0.01
   lr_drops: [60, 120]
   lr_drop_rate: 0.1
   weight_decay: 0.0001
@@ -24,7 +24,7 @@ prune:
   pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
   compression: 0.0
   compression_schedule: exponential #'linear','exponential'
-  prune_epochs: 40
+  prune_epochs: 20
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
   prune_batch_size: 256
@@ -52,5 +52,6 @@ policy:
   prediction_network: None
   save_important: None
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
+  save: True
   singleshot_compression : []
   

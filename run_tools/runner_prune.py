@@ -20,7 +20,7 @@ def run(cfgs):
         cfgs: {dict}, config params
     '''
     
-    steps = 0 #后面看看在哪里单独指定  10
+    # steps = 0 #后面看看在哪里单独指定  10
    
     # cfgs
     train_cfgs = cfgs['train']
@@ -36,15 +36,15 @@ def run(cfgs):
     # log & save path
     timestamp = time.localtime()
     formatted_time = time.strftime("%Y%m%d-%H%M", timestamp)
-    file_name = f"{policy_cfgs['expid']}-{formatted_time}"           # 这里有点啰嗦
+    file_name = f"{policy_cfgs['expid']}-{formatted_time}"
     result_dir = policy_cfgs['result_dir']
     dataset_path = f"autos_dataset/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}"
-    log_path = f"{os.getcwd()}/{result_dir}"
+    result_path = f"{os.getcwd()}/{result_dir}"
     save_path = f"{os.getcwd()}/{result_dir}/save/"   # 这里直接放到prune_result里面好吗
-    checkdir(log_path)
+    checkdir(result_path)
     checkdir(save_path)
     
-    log_file = os.path.join(f'{log_path}/{file_name}.log')    
+    log_file = os.path.join(f'{result_path}/{file_name}.log') 
     logger = get_root_logger(log_file, name='singleshot')
     
     # data
@@ -78,28 +78,31 @@ def run(cfgs):
     pruner = loader.pruner(prune_cfgs['pruner'])(masked_params)
     
     if policy_cfgs['run_choice'] == 'prune_iterative': #'train_important','prune_once','prediction_prune' 这里的分类是？迭代剪枝，单次剪枝，预测剪枝
-        sparse  = 0.01
+        sparse  = prune_cfgs['compression']
         prediction_model = None
-        prune_cfgs['prune_epochs'] = 20
-        if steps != 0:
-            with open(cfgs['save_important'], 'rb') as f:
-                data = pickle.load(f)
-            #dataset融合
-            for idx, (_, p) in enumerate(pruner.masked_params):              # 这个循环没有看懂
-                p = data['param'][idx].to(device)
-                pruner.dict['importants'][idx] = data['importants'][idx].to(device)     #这里放的是？
-        else:
-            checkdir(f"{os.getcwd()}/{dataset_path}")
-            torch.save(model.state_dict(),"{}/before_train_model.pt".format(f"{os.getcwd()}/{dataset_path}"))
-            cfgs['save_important'] = f"{os.getcwd()}/{dataset_path}/data.pkl"  # 更新了命令行参数
+        # if steps != 0:
+        #     with open(cfgs['save_important'], 'rb') as f:
+        #         data = pickle.load(f)
+        #     #dataset融合
+        #     for idx, (_, p) in enumerate(pruner.masked_params):              # 这个循环没有看懂
+        #         p = data['param'][idx].to(device)
+        #         pruner.dict['importants'][idx] = data['importants'][idx].to(device)     #这里放的是？
+        # else:
+        #     checkdir(f"{os.getcwd()}/{dataset_path}")
+        #     torch.save(model.state_dict(),"{}/before_train_model.pt".format(f"{os.getcwd()}/{dataset_path}"))
+        #     cfgs['save_important'] = f"{os.getcwd()}/{dataset_path}/data.pkl"  # 更新了命令行参数
+        dataset_path = f"{os.getcwd()}/{result_dir}/dataset/"
+        checkdir(dataset_path)
+        torch.save(model.state_dict(),"{}/before_train_model.pt".format(dataset_path))
+        cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
             
     elif policy_cfgs['run_choice'] == 'prune_once':
-        sparse = policy_cfgs['singleshot_compression'][steps]
+        sparse = policy_cfgs['singleshot_compression']#[steps]
         prediction_model = None
         prune_cfgs['prune_epochs'] = 1
         
     elif cfgs['run_choice'] == 'prune_prediction':
-        sparse = cfgs['singleshot_compression'][steps]
+        sparse = cfgs['singleshot_compression']#[steps]
         prune_cfgs['prune_epochs'] = 1
         if policy_cfgs['prediction_network'] != None:
             prediction_model = torch.load(policy_cfgs['prediction_network'], map_location=torch.device(device)).to(device)
@@ -157,10 +160,11 @@ def run(cfgs):
         checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             pickle.dump(pruner.dict, fp)     
+    print_log(f"data saved at {cfgs['save_important']}", logger=logger)
     
-    print_log(f"data saved at {os.getcwd()}/{dataset_path}/data.pkl", logger=logger)
+    
     if policy_cfgs['save']:
-        print(f"Saving results.at{save_path}")
+        print_log(f"Saving results.at{save_path}", logger=logger)
         pre_result.to_pickle("{}/pre-train.pkl".format(save_path))
         post_result.to_pickle("{}/post-train.pkl".format(save_path))
         prune_result.to_pickle("{}/compression.pkl".format(save_path))

@@ -1,6 +1,0 @@
-2024-04-01 16:15:05,986 - singleshot - INFO - Loading cifar10 dataset.
-2024-04-01 16:15:07,599 - singleshot - INFO - Creating tinyimagenet-resnet18 model.
-2024-04-01 16:15:09,507 - singleshot - INFO - Pre-Train for 0 epochs.
-2024-04-01 16:15:10,911 - singleshot - INFO - Pruning with mag for 40 epochs.
-2024-04-01 16:15:10,998 - singleshot - INFO - ----------prune epoch0----------
-2024-04-01 16:15:26,214 - singleshot - INFO - Post-Training for 160 epochs.

@@ -58,6 +58,7 @@ def check_dir(exp, args, cfgs):
     
     ##
     cfgs['policy']['result_dir'] = args.result_dir
+    cfgs['policy']['save'] = args.save
     
     ## save args
     if args.save:
