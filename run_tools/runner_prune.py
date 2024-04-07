@@ -94,15 +94,15 @@ def run(cfgs):
         dataset_path = f"{os.getcwd()}/{result_dir}/dataset/"
         checkdir(dataset_path)
         torch.save(model.state_dict(),"{}/before_train_model.pt".format(dataset_path))
-        cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
+        policy_cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
             
     elif policy_cfgs['run_choice'] == 'prune_once':
         sparse = policy_cfgs['singleshot_compression']#[steps]
         prediction_model = None
         prune_cfgs['prune_epochs'] = 1
         
-    elif cfgs['run_choice'] == 'prune_prediction':
-        sparse = cfgs['singleshot_compression']#[steps]
+    elif policy_cfgs['run_choice'] == 'prune_prediction':
+        sparse = policy_cfgs['singleshot_compression']#[steps]
         prune_cfgs['prune_epochs'] = 1
         if policy_cfgs['prediction_network'] != None:
             prediction_model = torch.load(policy_cfgs['prediction_network'], map_location=torch.device(device)).to(device)
@@ -160,7 +160,7 @@ def run(cfgs):
         checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             pickle.dump(pruner.dict, fp)     
-    print_log(f"data saved at {cfgs['save_important']}", logger=logger)
+    print_log(f"data saved at {policy_cfgs['save_important']}", logger=logger)
     
     
     if policy_cfgs['save']:
