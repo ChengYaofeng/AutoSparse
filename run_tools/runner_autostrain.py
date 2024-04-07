@@ -5,6 +5,7 @@ import torch
 import pickle
 import torch.nn as nn
 
+from tqdm import tqdm
 from torch.utils.data import DataLoader, TensorDataset
 from autos_model.autosnet import MLP, ResNet18, Vgg19, BiT
 from run_utils.logger import get_root_logger, print_log
@@ -28,8 +29,8 @@ def run(cfgs):
     file_name = f"{policy_cfgs['expid']}-{formatted_time}"
     root = os.getcwd()
     result_dir = policy_cfgs['result_dir']
-    dataset_path = f"autos_dataset/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}"
-    data_load_path = os.path.join(root, dataset_path, 'data.pkl')
+    dataset_path = train_cfgs['dataset_path']
+    data_load_path = os.path.join(root, dataset_path)#, 'data.pkl')
 
     log_path = os.path.join(root, result_dir)
     model_save_path = os.path.join(root, result_dir, file_name)
@@ -47,11 +48,12 @@ def run(cfgs):
     
     
     # data
+    print_log(f"Loading data from {data_load_path}", logger=logger)
     with open(data_load_path, 'rb') as f:
         train_data = pickle.load(f)
         
-    params = torch.cat([p.reshape(-1) for p in train_data['params']])   # traindata 在哪里训练
-    grads = torch.cat([g.reshape(-1) for g in train_data['grads']])
+    params = torch.cat([p.reshape(-1) for p in train_data['param']])
+    grads = torch.cat([g.reshape(-1) for g in train_data['grad']])
     importants = torch.cat([imp.reshape(-1) for imp in train_data['importants']])
     
     dataset = TensorDataset(params, grads, importants)
@@ -60,6 +62,7 @@ def run(cfgs):
     
     
     # model
+    print_log(f"Training model is {policy_cfgs['prediction_model']}", logger=logger)
     if policy_cfgs['prediction_model'] == "fc":
         model = MLP().to(device)
     elif policy_cfgs['prediction_model'] == "resnet18":
@@ -83,11 +86,12 @@ def run(cfgs):
     all_loss = []
     
     # 显示一下训练前后的差距
+    log_steps = len(train_dataloader) // 10
     
     # train
     for epoch in range(policy_cfgs['epochs']):
-        # print(policy_cfgs['epochs'])
-        for i,(batch_params, batch_grads, batch_importants) in enumerate(train_dataloader):
+        print_log(f'-----------------Pretrain epoch {epoch}-----------------', logger=logger)
+        for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(train_dataloader, total=len(train_dataloader), smoothing=0.9)):
             batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
             optimizer.zero_grad()
             
@@ -96,30 +100,30 @@ def run(cfgs):
             loss = loss_cal(output, batch_importants)
             loss.backward()
             optimizer.step()
+            if (batch_idx) % log_steps == 0:
+                print_log(f'Train Epoch [{epoch + 1}/{policy_cfgs["epochs"]}], Loss: {loss.item():.4f}', logger=logger)
         all_loss.append(loss.item())
-        # print_log(f'Train Epoch [{epoch + 1}/{policy_cfgs['epochs']}], Loss: {loss.item():.4f}', logger=logger)
     
-    save_dict['train_loss'] = all_loss
+        save_dict['train_loss'] = all_loss
     
     
-    # test
-    model.eval()
-    with torch.no_grad():
-        for _, (batch_params, batch_grads, batch_importants) in enumerate(test_dataloader):
-            batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
-            output = model(batch_params, batch_grads)
-            output.squeeze_(-1)
+        # test
+        model.eval()
+        with torch.no_grad():
+            for _, (batch_params, batch_grads, batch_importants) in enumerate(test_dataloader):
+                batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
+                output = model(batch_params, batch_grads)
+                output.squeeze_(-1)
+                
+                loss = loss_cal(output, batch_importants)
+                total_loss += loss.item() * len(batch_params)  # 这里什么要乘长度
             
-            loss = loss_cal(output, batch_importants)
-            total_loss += loss.item() * len(batch_params)  # 这里什么要乘长度
+                avg_loss = total_loss / len(test_dataloader)
+                
+                predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'after'))
         
-            avg_loss = total_loss / len(test_dataloader)
-            
-            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path
-    , 'after'))
-    
-    save_dict['test_loss'] = avg_loss
-    
-    torch.save(save_dict, os.path.join(model_save_path, 'result.pth'))   #后面画图loss
-    torch.save(model, os.path.join(model_save_path, 'model.pth'))
+        save_dict['test_loss'] = avg_loss
+        
+        torch.save(save_dict, os.path.join(model_save_path, 'result.pth'))   #后面画图loss
+        torch.save(model, os.path.join(model_save_path, 'model.pth'))
 

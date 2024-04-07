@@ -18,5 +18,8 @@ def load_config(args):
     
     if args.batchsize is not None:
         cfgs['train']['train_batch_size'] = args.batchsize
+        
+    if args.expid is not None:
+        cfgs['policy']['expid'] = args.expid
     
     return cfgs

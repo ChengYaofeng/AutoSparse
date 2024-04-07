@@ -25,17 +25,17 @@ def main():
         
         if args.experiment == 'prune':
             check_dir('prune_results', args, cfgs)
-            print("Pruning")
+            print('-'*20, "Pruning", '-'*20)
             runner_prune.run(cfgs)
         
         elif args.experiment == 'pretrain':
             check_dir('pretrain_results', args, cfgs)
-            print("Pretraining")
+            print('-'*20, 'Pretraining', '-'*20)
             runner_autostrain.run(cfgs)
     
         elif args.experiment == 'dataset':
             check_dir('dataset_results', args, cfgs)
-            print("Generating Dataset")
+            print('-'*20, "Generating Dataset", '-'*20)
             runner_prune.run(cfgs)
             
         else:

@@ -14,7 +14,7 @@ class Pruner:
         self.scores = {}
         self.dict = {}
         self.dict['importants'] = [torch.zeros_like(mask) for mask, _ in self.masked_params]
-        self.dict['params'] = [torch.clone(p.data).detach() for (_, p) in self.masked_params]   # 这里不加括号会不会有问题
+        self.dict['params'] = [torch.clone(p.data).detach() for (_, p) in self.masked_params]   # 这里不加括号会不会有问题，这里不能加s
         self.x = 0            # 这个参数干啥的
         
         
@@ -97,7 +97,7 @@ class Pruner:
                 output = model(data)
                 loss(output, target).backward()
             
-            self.dict['grad'] = [torch.clone(p.grad.data).detach() for (_, p) in self.masked_params]
+            self.dict['grads'] = [torch.clone(p.grad.data).detach() for (_, p) in self.masked_params]   #这里之前的数据集是grad
             print('gradient init')
         self.x += 1
         print(f'x: {self.x}')
