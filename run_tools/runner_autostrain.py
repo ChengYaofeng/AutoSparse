@@ -56,20 +56,24 @@ def run(cfgs):
     grads = torch.cat([g.reshape(-1) for g in train_data['grad']])
     importants = torch.cat([imp.reshape(-1) for imp in train_data['importants']])
     
+    max_imp = importants.max()
+    min_imp = importants.min()
+    importants = (importants - min_imp + 1e-7) / (max_imp - min_imp + 1e-7)  # N
+    
     dataset = TensorDataset(params, grads, importants)
-    train_dataloader = DataLoader(dataset, batch_size=policy_cfgs['batch_size'], shuffle=True)
-    test_dataloader = DataLoader(dataset, batch_size=policy_cfgs['batch_size'], shuffle=True)
+    train_dataloader = DataLoader(dataset, batch_size=train_cfgs['train_batchsize'], shuffle=True)
+    test_dataloader = DataLoader(dataset, batch_size=train_cfgs['test_batchsize'], shuffle=True)
     
     
     # model
-    print_log(f"Training model is {policy_cfgs['prediction_model']}", logger=logger)
-    if policy_cfgs['prediction_model'] == "fc":
+    print_log(f"Training model is {train_cfgs['prediction_model']}", logger=logger)
+    if train_cfgs['prediction_model'] == "fc":
         model = MLP().to(device)
-    elif policy_cfgs['prediction_model'] == "resnet18":
+    elif train_cfgs['prediction_model'] == "resnet18":
         model = ResNet18().to(device)
-    elif policy_cfgs['prediction_model'] == "vgg19":
+    elif train_cfgs['prediction_model'] == "vgg19":
         model = Vgg19().to(device)
-    elif policy_cfgs['prediction_model'] == "bit":
+    elif train_cfgs['prediction_model'] == "bit":
         model = BiT().to(device)
     else:
         raise ValueError("model not found")
@@ -80,7 +84,7 @@ def run(cfgs):
         
     # loss, optimizer
     loss_cal = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=policy_cfgs['lr'])
+    optimizer = torch.optim.Adam(model.parameters(), lr=train_cfgs['lr'])
     
     total_loss = 0.
     all_loss = []
@@ -89,9 +93,10 @@ def run(cfgs):
     log_steps = len(train_dataloader) // 10
     
     # train
-    for epoch in range(policy_cfgs['epochs']):
+    for epoch in range(train_cfgs['epochs']):
         print_log(f'-----------------Pretrain epoch {epoch}-----------------', logger=logger)
         for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(train_dataloader, total=len(train_dataloader), smoothing=0.9)):
+            
             batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
             optimizer.zero_grad()
             
@@ -101,7 +106,7 @@ def run(cfgs):
             loss.backward()
             optimizer.step()
             if (batch_idx) % log_steps == 0:
-                print_log(f'Train Epoch [{epoch + 1}/{policy_cfgs["epochs"]}], Loss: {loss.item():.4f}', logger=logger)
+                print_log(f'Train Epoch [{epoch + 1}/{train_cfgs["epochs"]}], Loss: {loss.item():.4f}', logger=logger)
         all_loss.append(loss.item())
     
         save_dict['train_loss'] = all_loss

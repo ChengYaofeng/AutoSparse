@@ -51,9 +51,9 @@ def run(cfgs):
     print_log('Loading {} dataset.'.format(train_cfgs['dataset']), logger=logger)
     input_shape, num_classes = loader.dimension(train_cfgs['dataset'])
     
-    prune_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batch_size'], True, policy_cfgs['workers'])
-    train_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batch_size'], True, policy_cfgs['workers'])
-    test_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['test_batch_size'], False, policy_cfgs['workers'])
+    prune_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batchsize'], True, policy_cfgs['workers'])
+    train_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batchsize'], True, policy_cfgs['workers'])
+    test_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['test_batchsize'], False, policy_cfgs['workers'])
     
     # model, optimizer, criterion
     print_log('Creating {}-{} model.'.format(train_cfgs['model_class'], train_cfgs['model']), logger=logger)
