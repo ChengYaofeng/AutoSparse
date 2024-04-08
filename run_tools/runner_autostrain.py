@@ -115,7 +115,7 @@ def run(cfgs):
         # test
         model.eval()
         with torch.no_grad():
-            for _, (batch_params, batch_grads, batch_importants) in enumerate(test_dataloader):
+            for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(train_dataloader), smoothing=0.9)):
                 batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
                 output = model(batch_params, batch_grads)
                 output.squeeze_(-1)
@@ -123,12 +123,21 @@ def run(cfgs):
                 loss = loss_cal(output, batch_importants)
                 total_loss += loss.item() * len(batch_params)  # 这里什么要乘长度
             
-                avg_loss = total_loss / len(test_dataloader)
                 
-                predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'after'))
+                if (batch_idx) % log_steps == 0:
+                    print_log(f'Train Epoch [{epoch + 1}/{train_cfgs["epochs"]}], Test Loss: {loss.item():.4f}', logger=logger)
+                    
+            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'after'))
+            
+            avg_test_loss = total_loss / len(test_dataloader)
+            save_dict['test_loss'] = avg_test_loss
+            print_log(f'Average Test Loss: {avg_test_loss:.4f}', logger=logger)
         
-        save_dict['test_loss'] = avg_loss
-        
-        torch.save(save_dict, os.path.join(model_save_path, 'result.pth'))   #后面画图loss
-        torch.save(model, os.path.join(model_save_path, 'model.pth'))
+            print_log('Saving model & results', logger=logger)
+            final_save_path = os.path.join(model_save_path, f'epoch{epoch}_model.pth')
+            result_save_path = os.path.join(model_save_path, f'epoch{epoch}_result.pth')
+            torch.save(save_dict, result_save_path)   #后面画图loss
+            print_log(f'Result saved at {result_save_path}', logger=logger)
+            torch.save(model, final_save_path)
+            print_log(f'Model saved at {final_save_path}', logger=logger)
 

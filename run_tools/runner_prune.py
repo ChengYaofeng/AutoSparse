@@ -101,7 +101,7 @@ def run(cfgs):
         prediction_model = None
         prune_cfgs['prune_epochs'] = 1
         
-    elif policy_cfgs['run_choice'] == 'prune_prediction':
+    elif policy_cfgs['run_choice'] == 'prune_autos':
         sparse = policy_cfgs['singleshot_compression']#[steps]
         prune_cfgs['prune_epochs'] = 1
         if policy_cfgs['prediction_network'] != None:

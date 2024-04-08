@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def predict_error_visual(batch_grads, batch_params, batch_importants, output, save_path):
     
     fig = plt.figure()
-    ax = fig.add_subplot(1, projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
 
     batch_grads = batch_grads.cpu().numpy()
     batch_params = batch_params.cpu().numpy()

@@ -1,6 +1,6 @@
 
 train:
-  dataset: 'mnist'  #'mnist','cifar10','cifar100','tiny-imagenet','imagenet'
+  dataset: 'cifar10'  #'mnist','cifar10','cifar100','tiny-imagenet','imagenet'
   model: 'fc' #'conv','fc1',
               # 'vgg11','vgg11-bn','vgg13','vgg13-bn','vgg16','vgg16-bn','vgg19','vgg19-bn',
               # 'resnet18','resnet20','resnet32','resnet34','resnet44','resnet50',
@@ -51,6 +51,6 @@ policy:
   verbose: False
   prediction_network: None
   save_important: False
-  run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
+  run_choice: prune_autos #prune_iterative, prune_once, prune_autos
   singleshot_compression : []
   
