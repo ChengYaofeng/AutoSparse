@@ -155,9 +155,15 @@ def get_args():
     parser.add_argument('--cfg', type=str, default=None,
                         help='config file path')
     parser.add_argument('--lr', type=float, default=0.001,
-                    help='learning rate (default: 0.001)')
+                        help='learning rate (default: 0.001)')
     parser.add_argument('--batchsize', type=int, default=64,
-                    help='input batch size for training (default: 64)')
+                        help='input batch size for training (default: 64)')
+    parser.add_argument('--autos_model', type=str, default=None,
+                        help='autos model path')
+    parser.add_argument('--singleshot_compression', type=float, nargs='*', default=None,
+                        help='list of number of prune-train cycles (levels) for multishot (default: [])')
+    parser.add_argument('--save_important', type=str, default=None,
+                        help='save important in one or not')
     args = parser.parse_args()
     
     return args

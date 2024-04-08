@@ -87,6 +87,7 @@ def run(cfgs):
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfgs['lr'])
     
     total_loss = 0.
+    current_loss = 1e7
     all_loss = []
     
     # 显示一下训练前后的差距
@@ -133,11 +134,13 @@ def run(cfgs):
             save_dict['test_loss'] = avg_test_loss
             print_log(f'Average Test Loss: {avg_test_loss:.4f}', logger=logger)
         
-            print_log('Saving model & results', logger=logger)
-            final_save_path = os.path.join(model_save_path, f'epoch{epoch}_model.pth')
-            result_save_path = os.path.join(model_save_path, f'epoch{epoch}_result.pth')
-            torch.save(save_dict, result_save_path)   #后面画图loss
-            print_log(f'Result saved at {result_save_path}', logger=logger)
-            torch.save(model, final_save_path)
-            print_log(f'Model saved at {final_save_path}', logger=logger)
+            if avg_test_loss < current_loss:
+                current_loss = avg_test_loss
+                print('Saving model & results')
+                final_save_path = os.path.join(model_save_path, f'epoch{epoch}_model.pth')
+                result_save_path = os.path.join(model_save_path, f'epoch{epoch}_result.pth')
+                torch.save(save_dict, result_save_path)   #后面画图loss
+                print_log(f'Result saved at {result_save_path}', logger=logger)
+                torch.save(model, final_save_path)
+                print_log(f'Model saved at {final_save_path}', logger=logger)
 

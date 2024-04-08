@@ -17,9 +17,20 @@ def load_config(args):
         cfgs['train']['lr'] = args.lr
     
     if args.batchsize is not None:
-        cfgs['train']['train_batch_size'] = args.batchsize
+        cfgs['train']['train_batchsize'] = args.batchsize
         
     if args.expid is not None:
         cfgs['policy']['expid'] = args.expid
+        
+    if args.autos_model is not None:
+        cfgs['policy']['autos_model'] = args.autos_model
+    
+    if args.singleshot_compression is not None:        
+        cfgs['policy']['singleshot_compression'] = args.singleshot_compression
+        print(cfgs['policy']['singleshot_compression'])
+        
+    if args.save_important is not None:
+        cfgs['policy']['save_important'] = args.save_important
+        
     
     return cfgs

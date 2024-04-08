@@ -178,6 +178,7 @@ def pruner(method):
         'mag' : pruners.Magnitude,
         'snip' : pruners.SNIP,
         'grasp': pruners.GraSP,
+        'autos': pruners.AutoS,
         # 'synflow' : pruners.SynFlow,
         # 'integrad' : pruners.IntegratedGradients,
         # 'dintegrad': pruners.DynamicIntegratedGradients,

@@ -97,18 +97,17 @@ def run(cfgs):
         policy_cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
             
     elif policy_cfgs['run_choice'] == 'prune_once':
-        sparse = policy_cfgs['singleshot_compression']#[steps]
+        sparse = policy_cfgs['singleshot_compression'][policy_cfgs['times']]
         prediction_model = None
         prune_cfgs['prune_epochs'] = 1
         
     elif policy_cfgs['run_choice'] == 'prune_autos':
-        sparse = policy_cfgs['singleshot_compression']#[steps]
+        sparse = policy_cfgs['singleshot_compression'][policy_cfgs['times']]
         prune_cfgs['prune_epochs'] = 1
-        if policy_cfgs['prediction_network'] != None:
-            prediction_model = torch.load(policy_cfgs['prediction_network'], map_location=torch.device(device)).to(device)
-            print('predict')
+        if policy_cfgs['autos_model'] != None:
+            prediction_model = torch.load(policy_cfgs['autos_model'], map_location=torch.device(device)).to(device)
         else:
-            raise ValueError("No prediction_network is given")
+            raise ValueError("No autos_model is given")
     
     
     for i in range(prune_cfgs['prune_epochs']):
@@ -122,7 +121,7 @@ def run(cfgs):
         #start_time = time.time()
         prune.prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
                 prune_cfgs['compression_schedule'], prune_cfgs['mask_scope'], 1, prune_cfgs['reinitialize'], prune_cfgs['prune_train_mode'], 
-                prune_cfgs['shuffle'], prune_cfgs['invert'], prune_cfgs['rewind'], prediction_model=prediction_model)
+                prune_cfgs['shuffle'], prune_cfgs['invert'], prune_cfgs['rewind'], prediction_model=prediction_model, choice=policy_cfgs['run_choice'])
         # print_log(f"Pruning time:{'-'*20} {time.time() - start_time}", logger=logger)
         
         optimizer = opt_class(generator.parameters(model), lr=train_cfgs['lr'], weight_decay=train_cfgs['weight_decay'], **opt_kwargs)
@@ -159,12 +158,13 @@ def run(cfgs):
             pruner.dict[key] = [tensor.cpu() for tensor in tensor_list]
         checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
-            pickle.dump(pruner.dict, fp)     
-    print_log(f"data saved at {policy_cfgs['save_important']}", logger=logger)
+            # print(pruner.dict)
+            pickle.dump(pruner.dict, fp)
+        print_log(f"data saved at {policy_cfgs['save_important']}", logger=logger)
     
     
     if policy_cfgs['save']:
-        print_log(f"Saving results.at{save_path}", logger=logger)
+        print_log(f"Saving results at{save_path}", logger=logger)
         pre_result.to_pickle("{}/pre-train.pkl".format(save_path))
         post_result.to_pickle("{}/post-train.pkl".format(save_path))
         prune_result.to_pickle("{}/compression.pkl".format(save_path))

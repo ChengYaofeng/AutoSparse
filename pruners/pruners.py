@@ -2,6 +2,8 @@ import torch
 import numpy as np
 from torch.nn import functional as F
 from time import time
+from torch.utils.data import DataLoader, TensorDataset
+
 
 class Pruner:
     def __init__(self, masked_params):
@@ -18,7 +20,7 @@ class Pruner:
         self.x = 0            # 这个参数干啥的
         
         
-    def score(self, model, loss, dataloader, device):
+    def score(self, model, loss, dataloader, device, autos_model=None):
         raise NotImplementedError
         
 
@@ -100,14 +102,14 @@ class Pruner:
             self.dict['grads'] = [torch.clone(p.grad.data).detach() for (_, p) in self.masked_params]   #这里之前的数据集是grad
             print('gradient init')
         self.x += 1
-        print(f'x: {self.x}')
+        # print(f'x: {self.x}')
 
 
 class Random(Pruner):
     def __init__(self, masked_params):
         super(Random, self).__init__(masked_params)
         
-    def score(self, model, loss, dataloader, device):
+    def score(self, model, loss, dataloader, device, autos_model=None):
         for _, p in self.masked_params:
             self.scores[id(p)] = torch.randn_like(p)
             
@@ -116,7 +118,7 @@ class Magnitude(Pruner):
     def __init__(self, masked_params):
         super(Magnitude, self).__init__(masked_params)
     
-    def score(self, model, loss, dataloader, device):
+    def score(self, model, loss, dataloader, device, autos_model=None):
         for _, p in self.masked_params:
             self.scores[id(p)] = torch.clone(p.data).detach().abs_()  #这里abs_()是原地操作，可以节省内存
             
@@ -125,7 +127,7 @@ class SNIP(Pruner):
     def __init__(self, masked_params):
         super(SNIP, self).__init__(masked_params)
         
-    def score(self, model, loss, dataloader, device):
+    def score(self, model, loss, dataloader, device, autos_model=None):
         '''
         Input:
             loss: {function}
@@ -163,5 +165,42 @@ class GraSP(Pruner):
         
 
 
+class AutoS(Pruner):
+    def __init__(self, masked_params):
+        super(AutoS, self).__init__(masked_params)
+        
+    def score(self, model, loss, dataloader, device, autos_model):
+        '''
+        Input:
+             
+        '''
+        # compute grad 存疑
+        # for batch_idx, (data, target) in enumerate(dataloader):
+        #         data, target = data.to(device), target.to(device)
+        #         output = model(data)
+        #         loss(output, target).backward()
+        
+        # self.dict['grads'] = [torch.clone(p.grad.data).detach() for (_, p) in self.masked_params]
+        self.init_p_grad(model, loss, dataloader, device)
+        
+        autos_model.eval()
+        with torch.no_grad():
+            for i, (_, p0) in enumerate(self.masked_params): #如何理解p0
+                # print(self.dict.keys())
+                print(i)
+                p = self.dict['params'][i].reshape(-1)
+                g = self.dict['grads'][i].reshape(-1)
+                dataset = TensorDataset(p, g)
+                important_list = torch.tensor([]).cpu()
+                dataloader = DataLoader(dataset, batch_size=1024*8, shuffle=False)     # batchsize需要进行调整吗？
 
+                for batch_p, batch_g in dataloader:
+                    batch_p, batch_g = batch_p.to(device), batch_g.to(device)
+                    output = autos_model(batch_p, batch_g)
+                    output = output.squeeze(-1)
+                    important_list = torch.cat((important_list, torch.clone(output).detach().cpu()), dim=0) # 这里不放到cpu上可以吗？ 显存
+                
+                #连接所有结果并reshape为p0
+                important = important_list.view(p0.shape)
+                self.scores[id(p0)] = important.to(device)      #这里是scores，是参数，score是函数
 
