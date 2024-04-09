@@ -36,7 +36,7 @@ def run(cfgs):
     # log & save path
     timestamp = time.localtime()
     formatted_time = time.strftime("%Y%m%d-%H%M", timestamp)
-    file_name = f"{policy_cfgs['expid']}-{formatted_time}"
+    file_name = f"{policy_cfgs['expid']}_{formatted_time}"
     result_dir = policy_cfgs['result_dir']
     dataset_path = f"autos_dataset/{train_cfgs['model']}/{train_cfgs['dataset']}/{prune_cfgs['pruner']}/{file_name}"
     result_path = f"{os.getcwd()}/{result_dir}"
@@ -114,8 +114,12 @@ def run(cfgs):
         print_log(f'----------prune epoch{i}----------', logger=logger)
         
         # 定义迭代稀疏的剪枝多少
-        sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
-        # 稀疏的比例，上面的是按照特定的数量稀疏
+        if cfgs['policy']['schedule'] == 'pct':
+            sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
+        elif cfgs['policy']['schedule'] == 'num':
+            sparsity = 0.85
+        else:
+            raise ValueError("Invalid schedule")
         
         # 15s
         #start_time = time.time()

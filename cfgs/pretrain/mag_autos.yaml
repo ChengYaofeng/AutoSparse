@@ -1,5 +1,6 @@
 
 train:
+  dataset: 'cifar10'
   model: 'resnet18'
   dataset_path: 'autos_dataset/cifar10/mag/cifar10_res18_40it_mag_important-2024-01-22-13-37/data.pkl'
   method: 'mag'
@@ -12,7 +13,7 @@ train:
   # data: None
 
 prune:
-
+  pruner: 'mag'
 policy:
   expid: 'cifar10_res18_20it_percent_mag_important'
   gpu: 0

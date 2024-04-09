@@ -48,7 +48,14 @@ def main():
         
 
 def check_dir(exp, args, cfgs):
-    result_dir = 'experiment/{}/{}'.format(exp, args.expid)   #result_dir 在哪里设定的
+    major_dir = f'experiment/{exp}/{cfgs["train"]["dataset"]}_{cfgs["train"]["model"]}_{cfgs["prune"]["pruner"]}'
+    try:
+        os.makedirs(major_dir)
+    except FileExistsError:
+        pass
+    
+    result_dir = f"{major_dir}/batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+                   #result_dir 在哪里设定的
     setattr(args, 'save', True)
     setattr(args, 'result_dir', result_dir) 
         ## 调试结束后记得保留回来
@@ -67,7 +74,7 @@ def check_dir(exp, args, cfgs):
     
     ## save args
     if args.save:
-        with open(os.path.join(args.result_dir, 'config.yaml'), 'w') as f:
+        with open(os.path.join(args.result_dir, os.path.basename(args.cfg)), 'w') as f:
             yaml.dump(cfgs, f)
     
 

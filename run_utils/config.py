@@ -31,6 +31,12 @@ def load_config(args):
         
     if args.save_important is not None:
         cfgs['policy']['save_important'] = args.save_important
+    
+    if args.seed is not None:
+        cfgs['policy']['seed'] = args.seed
+    
+    if args.schedule is not None:
+        cfgs['policy']['schedule'] = args.schedule
         
     
     return cfgs

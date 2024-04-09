@@ -21,7 +21,7 @@ train:
   weight_decay: 0.0001
 
 prune:
-  pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
+  pruner: snip #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
   compression: 0.01 # 0.01是最低
   compression_schedule: exponential #'linear','exponential'
   prune_epochs: 20  # 20 40 100
@@ -53,6 +53,6 @@ policy:
   save_important: None
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
   save: True
-  schedule: pct #pct, num
+  schedule: percent #percent, number
   singleshot_compression : []
   

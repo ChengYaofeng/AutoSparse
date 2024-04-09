@@ -164,6 +164,10 @@ def get_args():
                         help='list of number of prune-train cycles (levels) for multishot (default: [])')
     parser.add_argument('--save_important', type=str, default=None,
                         help='save important in one or not')
+    parser.add_argument('--seed', type=int, default=1,
+                        help='random seed (default: 1)')
+    parser.add_argument('--schedule', type=str, default='pct', choices=['pct','num'],
+                        help='sparse training schedule (default: percent), choices: percent and number')
     args = parser.parse_args()
     
     return args

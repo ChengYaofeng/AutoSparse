@@ -26,7 +26,7 @@ def run(cfgs):
     # path
     timestamp = time.localtime()
     formatted_time = time.strftime("%Y%m%d-%H-%M", timestamp)
-    file_name = f"{policy_cfgs['expid']}-{formatted_time}"
+    file_name = f"{policy_cfgs['expid']}_{formatted_time}"
     root = os.getcwd()
     result_dir = policy_cfgs['result_dir']
     dataset_path = train_cfgs['dataset_path']
@@ -93,6 +93,16 @@ def run(cfgs):
     # 显示一下训练前后的差距
     log_steps = len(train_dataloader) // 10
     
+    # model test
+    model.eval()
+    with torch.no_grad():
+        for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(train_dataloader), smoothing=0.9)):
+            batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
+            output = model(batch_params, batch_grads)
+            output.squeeze_(-1)
+
+    predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'before'))
+    
     # train
     for epoch in range(train_cfgs['epochs']):
         print_log(f'-----------------Pretrain epoch {epoch}-----------------', logger=logger)
@@ -128,7 +138,7 @@ def run(cfgs):
                 if (batch_idx) % log_steps == 0:
                     print_log(f'Train Epoch [{epoch + 1}/{train_cfgs["epochs"]}], Test Loss: {loss.item():.4f}', logger=logger)
                     
-            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'after'))
+            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, f'{epoch}', 'after'))
             
             avg_test_loss = total_loss / len(test_dataloader)
             save_dict['test_loss'] = avg_test_loss
