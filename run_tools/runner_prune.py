@@ -97,12 +97,12 @@ def run(cfgs):
         policy_cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
             
     elif policy_cfgs['run_choice'] == 'prune_once':
-        sparse = policy_cfgs['singleshot_compression'][policy_cfgs['times']]
+        sparse = prune_cfgs['compression'][policy_cfgs['times']]
         prediction_model = None
         prune_cfgs['prune_epochs'] = 1
         
     elif policy_cfgs['run_choice'] == 'prune_autos':
-        sparse = policy_cfgs['singleshot_compression'][policy_cfgs['times']]
+        sparse = prune_cfgs['compression'][policy_cfgs['times']]
         prune_cfgs['prune_epochs'] = 1
         if policy_cfgs['autos_model'] != None:
             prediction_model = torch.load(policy_cfgs['autos_model'], map_location=torch.device(device)).to(device)

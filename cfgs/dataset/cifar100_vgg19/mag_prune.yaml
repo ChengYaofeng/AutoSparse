@@ -23,7 +23,7 @@ train:
 prune:
   pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
   compression: 0.0
-  compression_schedule: exponential #'linear','exponential'
+  schedule: pct #pct, num
   prune_epochs: 40
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
@@ -52,6 +52,5 @@ policy:
   prediction_network: 
   save_important: 
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
-  singleshot_compression : []
   cfgs_dir: 'cfgs'   #cfgs save path
   

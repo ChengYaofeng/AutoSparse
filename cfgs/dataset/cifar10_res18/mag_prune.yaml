@@ -23,7 +23,7 @@ train:
 prune:
   pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
   compression: 0.01 # 0.01是最低
-  compression_schedule: exponential #'linear','exponential'
+  schedule: pct #pct, num
   prune_epochs: 20  # 20 40 100
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
@@ -53,6 +53,5 @@ policy:
   save_important: 
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
   save: True
-  schedule: pct #pct, num
-  singleshot_compression : []
+
   

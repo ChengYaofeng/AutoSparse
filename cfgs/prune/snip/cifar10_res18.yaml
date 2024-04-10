@@ -14,16 +14,16 @@ train:
   train_batchsize: 64
   test_batchsize: 256
   pre_epochs: 0
-  post_epochs: 10
-  lr: 0.001
-  lr_drops: []
+  post_epochs: 160
+  lr: 0.01
+  lr_drops: [60, 120]
   lr_drop_rate: 0.1
-  weight_decay: 0.0
+  weight_decay: 0.0001
 
 prune:
   pruner: snip #'rand','mag','snip','grasp','synflow','autos'
-  compression: 0.0
-  schedule: exponential #'linear','exponential'
+  compression: [0.8, 0.7, 0.5, 0.3, 0.1, 0.05, 0.01]
+  schedule: pct #pct, num
   prune_epochs: 1
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
@@ -52,7 +52,6 @@ policy:
   autos_model: 
   save_important: 
   run_choice: prune_once #prune_iterative, prune_once, prune_autos
-  singleshot_compression: [0.8, 0.7, 0.5, 0.3, 0.1, 0.05, 0.01]
   times: 
   
   

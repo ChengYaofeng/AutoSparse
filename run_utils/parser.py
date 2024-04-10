@@ -160,7 +160,7 @@ def get_args():
                         help='input batch size for training (default: 64)')
     parser.add_argument('--autos_model', type=str, default=None,
                         help='autos model path')
-    parser.add_argument('--singleshot_compression', type=float, nargs='*', default=None,
+    parser.add_argument('--compression', type=float, nargs='*', default=None,
                         help='list of number of prune-train cycles (levels) for multishot (default: [])')
     parser.add_argument('--save_important', type=str, default=None,
                         help='save important in one or not')

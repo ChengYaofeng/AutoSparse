@@ -25,9 +25,8 @@ def load_config(args):
     if args.autos_model is not None:
         cfgs['policy']['autos_model'] = args.autos_model
     
-    if args.singleshot_compression is not None:        
-        cfgs['policy']['singleshot_compression'] = args.singleshot_compression
-        print(cfgs['policy']['singleshot_compression'])
+    if args.compression is not None:        
+        cfgs['prune']['compression'] = args.compression
         
     if args.save_important is not None:
         cfgs['policy']['save_important'] = args.save_important

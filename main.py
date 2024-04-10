@@ -26,11 +26,10 @@ def main():
         if args.experiment == 'prune':
             check_dir('prune_results', args, cfgs)
             print('-'*20, "Pruning", '-'*20)
-            # print(len(cfgs['policy']['singleshot_compression']))
-            for i in range(len(cfgs['policy']['singleshot_compression'])):
+            for i in range(len(cfgs['prune']['compression'])):
                 # print(f'times{i}')
                 cfgs['policy']['times'] = i
-                print('-'*10, 'Compression Level {}'.format(cfgs['policy']['singleshot_compression'][i]), '-'*10)
+                print('-'*10, 'Compression Level {}'.format(cfgs['prune']['compression'][i]), '-'*10)
                 runner_prune.run(cfgs)
         
         elif args.experiment == 'pretrain':
