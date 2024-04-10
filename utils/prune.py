@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 
-def prune_loop(model, loss, pruner, pruneloader, device, sparsity, schedule, scope, epochs,
+def prune_loop(model, loss, pruner, pruneloader, device, sparsity, scope, epochs,
                reinitialize=False, train_mode=False, shuffle=False, invert=False, 
                params = None, rewind=True, prediction_model= None, choice=None): #这里的命名感觉不是很好
     '''

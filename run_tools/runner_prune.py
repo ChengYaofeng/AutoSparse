@@ -45,13 +45,13 @@ def run(cfgs):
     checkdir(save_path)
     
     log_file = os.path.join(f'{result_path}/{file_name}.log') 
-    logger = get_root_logger(log_file, name='singleshot')
+    logger = get_root_logger(log_file, name=policy_cfgs['run_choice'])
     
     # data
     print_log('Loading {} dataset.'.format(train_cfgs['dataset']), logger=logger)
     input_shape, num_classes = loader.dimension(train_cfgs['dataset'])
     
-    prune_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batchsize'], True, policy_cfgs['workers'])
+    prune_loader = loader.dataloader(train_cfgs['dataset'], prune_cfgs['prune_batchsize'], True, policy_cfgs['workers'])
     train_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['train_batchsize'], True, policy_cfgs['workers'])
     test_loader = loader.dataloader(train_cfgs['dataset'], train_cfgs['test_batchsize'], False, policy_cfgs['workers'])
     
@@ -91,7 +91,7 @@ def run(cfgs):
         #     checkdir(f"{os.getcwd()}/{dataset_path}")
         #     torch.save(model.state_dict(),"{}/before_train_model.pt".format(f"{os.getcwd()}/{dataset_path}"))
         #     cfgs['save_important'] = f"{os.getcwd()}/{dataset_path}/data.pkl"  # 更新了命令行参数
-        dataset_path = f"{os.getcwd()}/{result_dir}/dataset/"
+        dataset_path = f"{os.getcwd()}/{result_dir}/dataset"
         checkdir(dataset_path)
         torch.save(model.state_dict(),"{}/before_train_model.pt".format(dataset_path))
         policy_cfgs['save_important'] = f"{dataset_path}/data.pkl"  # 更新了命令行参数
@@ -114,9 +114,9 @@ def run(cfgs):
         print_log(f'----------prune epoch{i}----------', logger=logger)
         
         # 定义迭代稀疏的剪枝多少
-        if cfgs['policy']['schedule'] == 'pct':
+        if prune_cfgs['schedule'] == 'pct':
             sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
-        elif cfgs['policy']['schedule'] == 'num':
+        elif prune_cfgs['schedule'] == 'num':
             sparsity = 0.85
         else:
             raise ValueError("Invalid schedule")
@@ -124,7 +124,7 @@ def run(cfgs):
         # 15s
         #start_time = time.time()
         prune.prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
-                prune_cfgs['compression_schedule'], prune_cfgs['mask_scope'], 1, prune_cfgs['reinitialize'], prune_cfgs['prune_train_mode'], 
+                prune_cfgs['mask_scope'], 1, prune_cfgs['reinitialize'], prune_cfgs['prune_train_mode'], 
                 prune_cfgs['shuffle'], prune_cfgs['invert'], prune_cfgs['rewind'], prediction_model=prediction_model, choice=policy_cfgs['run_choice'])
         # print_log(f"Pruning time:{'-'*20} {time.time() - start_time}", logger=logger)
         

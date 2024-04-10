@@ -14,6 +14,8 @@ train:
 
 prune:
   pruner: 'mag'
+
 policy:
   expid: 'cifar10_res18_20it_percent_mag_important'
   gpu: 0
+  run_choice: prune_iterative #prune_iterative, prune_once, prune_autos

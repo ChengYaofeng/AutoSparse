@@ -23,11 +23,11 @@ train:
 prune:
   pruner: autos #'rand','mag','snip','grasp','synflow','autos'
   compression: 0.0
-  compression_schedule: exponential #'linear','exponential'
+  schedule: exponential #'linear','exponential'
   prune_epochs: 1
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
-  prune_batch_size: 256
+  prune_batchsize: 256
   prune_bias: False
   prune_batchnorm: False
   prune_residual: False
@@ -49,10 +49,10 @@ policy:
   workers: 4
   seed: 0
   verbose: False
-  autos_model: None
-  save_important: None
+  autos_model: 
+  save_important: 
   run_choice: prune_autos #prune_iterative, prune_once, prune_autos
   singleshot_compression: [0.8, 0.7, 0.5, 0.3, 0.1, 0.05, 0.01]
-  times: None
+  times: 
   
   

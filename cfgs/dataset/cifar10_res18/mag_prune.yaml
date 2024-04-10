@@ -27,7 +27,7 @@ prune:
   prune_epochs: 20  # 20 40 100
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
-  prune_batch_size: 256
+  prune_batchsize: 256
   prune_bias: False
   prune_batchnorm: False
   prune_residual: False
@@ -49,8 +49,8 @@ policy:
   workers: 4
   seed: 0
   verbose: False
-  prediction_network: None
-  save_important: None
+  prediction_network: 
+  save_important: 
   run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
   save: True
   schedule: pct #pct, num

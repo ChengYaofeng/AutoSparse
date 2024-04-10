@@ -41,7 +41,7 @@ def run(cfgs):
     
     # log & save path
     log_file = os.path.join(f'{log_path}/{file_name}.log')
-    logger = get_root_logger(log_file, name='autos_network')
+    logger = get_root_logger(log_file, name=policy_cfgs['run_choice'])
     save_dict = {}
     save_dict['train_loss'] = []
     save_dict['test_loss'] = []

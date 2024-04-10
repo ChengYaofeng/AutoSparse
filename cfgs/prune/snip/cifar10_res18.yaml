@@ -10,21 +10,21 @@ train:
   model_class: tinyimagenet #'default','lottery','tinyimagenet','imagenet'
   dense_classifier: False
   pretrained: False
-  optimizer: 'momentum' #'sgd','momentum','adam','rms'
-  train_batchsize: 32
+  optimizer: 'adam' #'sgd','momentum','adam','rms'
+  train_batchsize: 64
   test_batchsize: 256
   pre_epochs: 0
-  post_epochs: 160
-  lr: 0.01
-  lr_drops: [60, 120]
+  post_epochs: 10
+  lr: 0.001
+  lr_drops: []
   lr_drop_rate: 0.1
-  weight_decay: 0.0001
+  weight_decay: 0.0
 
 prune:
-  pruner: snip #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
-  compression: 0.01 # 0.01是最低
-  compression_schedule: exponential #'linear','exponential'
-  prune_epochs: 20  # 20 40 100
+  pruner: snip #'rand','mag','snip','grasp','synflow','autos'
+  compression: 0.0
+  schedule: exponential #'linear','exponential'
+  prune_epochs: 1
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
   prune_batchsize: 256
@@ -43,16 +43,16 @@ prune:
 
 policy:
   experiment: prune #pretrain
-  expid: 'cifar10_res18_20it_percent_mag_important'
+  expid: 0
   result_dir: 'experiment/prune_resutls'
   gpu: 0
   workers: 4
   seed: 0
   verbose: False
-  prediction_network: 
+  autos_model: 
   save_important: 
-  run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
-  save: True
-  schedule: percent #percent, number
-  singleshot_compression : []
+  run_choice: prune_once #prune_iterative, prune_once, prune_autos
+  singleshot_compression: [0.8, 0.7, 0.5, 0.3, 0.1, 0.05, 0.01]
+  times: 
+  
   
