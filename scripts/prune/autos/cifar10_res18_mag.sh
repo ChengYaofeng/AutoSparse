@@ -5,8 +5,9 @@ set -e
 export CUDA_VISIBLE_DEVICES=0
 
 python main.py  --experiment 'prune'\
-                --expid '2'\
+                --expid '5'\
                 --result-dir 'experiment/prune_resutls'\
                 --cfg 'cfgs/prune/autos/cifar10_res18_mag.yaml'\
-                --autos_model 'experiment/pretrain_results/cifar_pretrain_batch2048_lr0.001/cifar_pretrain_batch2048_lr0.001-20240408-12-24/model.pth' \
-                # --singleshot_compression 0.8 0.7 0.5 0.3 0.1 0.05 0.01\
+                --lr 0.01 \
+                --schedule 'pct' \
+                --autos_model '/home/cyf/Autosparse/experiment/pretrain_results/cifar10_resnet18_mag/batch4096_lr0.0001_pct_pepoch0_seed1_3/3_20240412-14-58/epoch4_model.pth' \

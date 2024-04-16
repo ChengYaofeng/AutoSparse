@@ -154,9 +154,9 @@ def get_args():
                         help='number of data loading workers (default: 4)')
     parser.add_argument('--cfg', type=str, default=None,
                         help='config file path')
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=None,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--batchsize', type=int, default=64,
+    parser.add_argument('--batchsize', type=int, default=None,
                         help='input batch size for training (default: 64)')
     parser.add_argument('--autos_model', type=str, default=None,
                         help='autos model path')

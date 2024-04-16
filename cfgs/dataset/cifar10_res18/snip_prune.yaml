@@ -11,7 +11,7 @@ train:
   dense_classifier: False
   pretrained: False
   optimizer: 'momentum' #'sgd','momentum','adam','rms'
-  train_batchsize: 32
+  train_batchsize: 64
   test_batchsize: 256
   pre_epochs: 0
   post_epochs: 160

@@ -114,9 +114,9 @@ def run(cfgs):
         print_log(f'----------prune epoch{i}----------', logger=logger)
         
         # 定义迭代稀疏的剪枝多少
-        if prune_cfgs['schedule'] == 'pct':
+        if prune_cfgs['schedule'] == 'num':
             sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
-        elif prune_cfgs['schedule'] == 'num':
+        elif prune_cfgs['schedule'] == 'pct':
             sparsity = 0.85
         else:
             raise ValueError("Invalid schedule")
@@ -160,7 +160,7 @@ def run(cfgs):
     if policy_cfgs['save_important'] is not None:
         for key, tensor_list in pruner.dict.items():
             pruner.dict[key] = [tensor.cpu() for tensor in tensor_list]
-        checkdir(f"{os.getcwd()}/{dataset_path}/")
+        # checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             # print(pruner.dict)
             pickle.dump(pruner.dict, fp)

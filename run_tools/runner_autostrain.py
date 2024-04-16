@@ -52,8 +52,8 @@ def run(cfgs):
     with open(data_load_path, 'rb') as f:
         train_data = pickle.load(f)
         
-    params = torch.cat([p.reshape(-1) for p in train_data['param']])
-    grads = torch.cat([g.reshape(-1) for g in train_data['grad']])
+    params = torch.cat([p.reshape(-1) for p in train_data['params']])
+    grads = torch.cat([g.reshape(-1) for g in train_data['grads']])
     importants = torch.cat([imp.reshape(-1) for imp in train_data['importants']])
     
     max_imp = importants.max()
@@ -85,8 +85,10 @@ def run(cfgs):
     # loss, optimizer
     loss_cal = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfgs['lr'])
+    # optimizer = torch.optim.SGD(model.parameters(), lr=train_cfgs['lr'])
     
-    total_loss = 0.
+    
+    
     current_loss = 1e7
     all_loss = []
     
@@ -122,7 +124,7 @@ def run(cfgs):
     
         save_dict['train_loss'] = all_loss
     
-    
+        total_loss = 0.
         # test
         model.eval()
         with torch.no_grad():
@@ -138,13 +140,14 @@ def run(cfgs):
                 if (batch_idx) % log_steps == 0:
                     print_log(f'Train Epoch [{epoch + 1}/{train_cfgs["epochs"]}], Test Loss: {loss.item():.4f}', logger=logger)
                     
-            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, f'{epoch}', 'after'))
+            predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, f'{epoch}_after'))
             
             avg_test_loss = total_loss / len(test_dataloader)
             save_dict['test_loss'] = avg_test_loss
             print_log(f'Average Test Loss: {avg_test_loss:.4f}', logger=logger)
-        
-            if avg_test_loss < current_loss:
+            print_log(f'Current loss: {current_loss:.4f}', logger=logger)
+            
+            if avg_test_loss < current_loss:             
                 current_loss = avg_test_loss
                 print('Saving model & results')
                 final_save_path = os.path.join(model_save_path, f'epoch{epoch}_model.pth')

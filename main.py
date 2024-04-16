@@ -53,7 +53,7 @@ def check_dir(exp, args, cfgs):
     except FileExistsError:
         pass
     
-    result_dir = f"{major_dir}/batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+    result_dir = f"{major_dir}/batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_{cfgs['prune']['schedule']}_pepoch{cfgs['prune']['prune_epochs']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
                    #result_dir 在哪里设定的
     setattr(args, 'save', True)
     setattr(args, 'result_dir', result_dir) 

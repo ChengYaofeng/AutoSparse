@@ -11,14 +11,14 @@ train:
   dense_classifier: False
   pretrained: False
   optimizer: 'momentum' #'sgd','momentum','adam','rms'
-  train_batchsize: 32
+  train_batchsize: 64 # 32 64 128 (32best)
   test_batchsize: 256
   pre_epochs: 0
   post_epochs: 160
   lr: 0.01
   lr_drops: [60, 120]
-  lr_drop_rate: 0.1
-  weight_decay: 0.0001
+  lr_drop_rate: 0.2
+  weight_decay: 0.0005
 
 prune:
   pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
