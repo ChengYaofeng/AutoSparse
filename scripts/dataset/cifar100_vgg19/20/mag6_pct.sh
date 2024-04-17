@@ -7,7 +7,7 @@ export CUDA_VISIBLE_DEVICES=6
 
 
 python main.py --experiment 'dataset'\
-                --expid '2'\
+                --expid '0'\
                 --lr 0.1\
                 --seed 0\
                 --schedule 'pct'\

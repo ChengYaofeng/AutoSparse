@@ -11,7 +11,7 @@ train:
   dense_classifier: False
   pretrained: False
   optimizer: 'momentum' #'sgd','momentum','adam','rms'
-  train_batchsize: 128 # 32 64 128 (32best)
+  train_batchsize: 128
   test_batchsize: 256
   pre_epochs: 0
   post_epochs: 160
@@ -21,13 +21,14 @@ train:
   weight_decay: 0.0005
 
 prune:
-  pruner: snip #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
-  compression: 0.01 # 0.01是最低
+  pruner: autos #'rand','mag','snip','grasp','synflow','autos'
+  compression: [0.8, 0.7, 0.5, 0.3, 0.1, 0.05, 0.01]
   schedule: pct #pct, num
-  prune_epochs: 20  # 20 40 100
+  prune_epochs: 1
   mask_scope: 'global' #'global','local'
   prune_dataset_ratio: 10
   prune_batchsize: 256
+  params_batch_size: 4096 #4096
   prune_bias: False
   prune_batchnorm: False
   prune_residual: False
@@ -43,15 +44,15 @@ prune:
 
 policy:
   experiment: prune #pretrain
-  expid: 'cifar10_res18_20it_percent_mag_important'
+  expid: 0
   result_dir: 'experiment/prune_resutls'
   gpu: 0
   workers: 4
   seed: 0
   verbose: False
-  prediction_network: 
+  autos_model: 
   save_important: 
-  run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
-  save: True
-
+  run_choice: prune_autos #prune_iterative, prune_once, prune_autos
+  times: 
+  
   

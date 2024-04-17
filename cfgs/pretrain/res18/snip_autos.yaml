@@ -2,12 +2,12 @@
 train:
   dataset: 'cifar10'
   model: 'resnet18'
-  dataset_path: 'experiment/dataset_results/cifar10_resnet18_snip/batch64_lr0.01_pct_pepoch20_seed0_1/dataset/data.pkl'
+  dataset_path: '/home/cyf/Autosparse/experiment_0416before/dataset_results/cifar10_resnet18_snip/batch64_lr0.01_num_pepoch20_seed0_0/dataset/data.pkl'
   method: 'snip'
   epochs: 10
   train_batchsize: 4096
   test_batchsize: 4096
-  lr: 0.001
+  lr: 0.01
   prediction_model: 'resnet18'
   save_name: 
   # data: None

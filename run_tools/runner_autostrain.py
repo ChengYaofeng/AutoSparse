@@ -7,7 +7,7 @@ import torch.nn as nn
 
 from tqdm import tqdm
 from torch.utils.data import DataLoader, TensorDataset
-from autos_model.autosnet import MLP, ResNet18, Vgg19, BiT
+from autos_model.autosnet import *
 from run_utils.logger import get_root_logger, print_log
 from utils.data_visual import predict_error_visual
 
@@ -60,9 +60,13 @@ def run(cfgs):
     min_imp = importants.min()
     importants = (importants - min_imp + 1e-7) / (max_imp - min_imp + 1e-7)  # N
     
+    test_len = params.shape[0] // 10  # 这里可以改写成ratio
+
     dataset = TensorDataset(params, grads, importants)
+    test_dataset = TensorDataset(params[:test_len, ], grads[:test_len, ], importants[:test_len, ])
+    
     train_dataloader = DataLoader(dataset, batch_size=train_cfgs['train_batchsize'], shuffle=True)
-    test_dataloader = DataLoader(dataset, batch_size=train_cfgs['test_batchsize'], shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=train_cfgs['test_batchsize'], shuffle=False)
     
     
     # model
@@ -71,6 +75,8 @@ def run(cfgs):
         model = MLP().to(device)
     elif train_cfgs['prediction_model'] == "resnet18":
         model = ResNet18().to(device)
+    elif train_cfgs['prediction_model'] == "resnet50":
+        model = ResNet50().to(device)
     elif train_cfgs['prediction_model'] == "vgg19":
         model = Vgg19().to(device)
     elif train_cfgs['prediction_model'] == "bit":
@@ -97,16 +103,19 @@ def run(cfgs):
     
     # model test
     model.eval()
+    print_log(f'-----------------Test Before Train-----------------', logger=logger)
     with torch.no_grad():
-        for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(train_dataloader), smoothing=0.9)):
+        for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(test_dataloader), smoothing=0.9)):
             batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
             output = model(batch_params, batch_grads)
             output.squeeze_(-1)
 
     predict_error_visual(batch_params, batch_grads, batch_importants, output, os.path.join(model_save_path, 'before'))
+
     
     # train
     for epoch in range(train_cfgs['epochs']):
+        model.train()
         print_log(f'-----------------Pretrain epoch {epoch}-----------------', logger=logger)
         for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(train_dataloader, total=len(train_dataloader), smoothing=0.9)):
             
@@ -128,7 +137,7 @@ def run(cfgs):
         # test
         model.eval()
         with torch.no_grad():
-            for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(train_dataloader), smoothing=0.9)):
+            for batch_idx, (batch_params, batch_grads, batch_importants) in enumerate(tqdm(test_dataloader, total=len(test_dataloader), smoothing=0.9)):
                 batch_params, batch_grads, batch_importants = batch_params.to(device), batch_grads.to(device), batch_importants.to(device)
                 output = model(batch_params, batch_grads)
                 output.squeeze_(-1)

@@ -166,8 +166,9 @@ class GraSP(Pruner):
 
 
 class AutoS(Pruner):
-    def __init__(self, masked_params):
+    def __init__(self, masked_params, params_batch_size=4096):
         super(AutoS, self).__init__(masked_params)
+        self.params_batch_size = params_batch_size
         
     def score(self, model, loss, dataloader, device, autos_model):
         '''
@@ -192,7 +193,7 @@ class AutoS(Pruner):
                 g = self.dict['grads'][i].reshape(-1)
                 dataset = TensorDataset(p, g)
                 important_list = torch.tensor([]).cpu()
-                dataloader = DataLoader(dataset, batch_size=1024*8, shuffle=False)     # batchsize需要进行调整吗？
+                dataloader = DataLoader(dataset, batch_size=self.params_batch_size, shuffle=False)     # batchsize需要进行调整吗？
 
                 for batch_p, batch_g in dataloader:
                     batch_p, batch_g = batch_p.to(device), batch_g.to(device)
@@ -203,4 +204,4 @@ class AutoS(Pruner):
                 #连接所有结果并reshape为p0
                 important = important_list.view(p0.shape)
                 self.scores[id(p0)] = important.to(device)      #这里是scores，是参数，score是函数
-
+        del autos_model

@@ -7,7 +7,7 @@ export CUDA_VISIBLE_DEVICES=0
 
 
 python main.py --experiment 'dataset'\
-                --expid '0-test'\
+                --expid '0'\
                 --lr 0.01\
                 --batchsize 64\
                 --seed 0\

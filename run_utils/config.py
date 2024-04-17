@@ -40,5 +40,4 @@ def load_config(args):
     if args.save_important is not None:
         cfgs['policy']['save_important'] = args.save_important
         
-    
     return cfgs

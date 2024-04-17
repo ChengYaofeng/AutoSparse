@@ -21,7 +21,7 @@ train:
   weight_decay: 0.0001
 
 prune:
-  pruner: mag #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
+  pruner: snip #'rand','mag','snip','grasp','synflow','integrad','dintegrad'
   compression: 0.01 # 0.01是最低
   schedule: pct #pct, num
   prune_epochs: 20  # 20 40 100

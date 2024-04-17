@@ -75,7 +75,10 @@ def run(cfgs):
     # prune
     print_log('Pruning with {} for {} epochs.'.format(prune_cfgs['pruner'], prune_cfgs['prune_epochs']),logger=logger)
     masked_params = generator.masked_parameters(model, prune_cfgs['prune_bias'], prune_cfgs['prune_batchnorm'], prune_cfgs['prune_residual']) #mask & params
-    pruner = loader.pruner(prune_cfgs['pruner'])(masked_params)
+    if prune_cfgs['pruner'] == 'autos':
+        pruner = loader.pruner(prune_cfgs['pruner'])(masked_params, prune_cfgs['params_batch_size'])
+    else:
+        pruner = loader.pruner(prune_cfgs['pruner'])(masked_params)
     
     if policy_cfgs['run_choice'] == 'prune_iterative': #'train_important','prune_once','prediction_prune' 这里的分类是？迭代剪枝，单次剪枝，预测剪枝
         sparse  = prune_cfgs['compression']
@@ -114,13 +117,18 @@ def run(cfgs):
         print_log(f'----------prune epoch{i}----------', logger=logger)
         
         # 定义迭代稀疏的剪枝多少
-        if prune_cfgs['schedule'] == 'num':
-            sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
-        elif prune_cfgs['schedule'] == 'pct':
-            sparsity = 0.85
+        if policy_cfgs['run_choice'] == 'prune_iterative':
+            if prune_cfgs['schedule'] == 'num':
+                sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
+            elif prune_cfgs['schedule'] == 'pct':
+                # sparsity = 0.85
+                # print(sparse, prune_cfgs['prune_epochs'])
+                sparsity = sparse ** 1/prune_cfgs['prune_epochs']
+            else:
+                raise ValueError("Invalid schedule")
         else:
-            raise ValueError("Invalid schedule")
-        
+            sparsity = 1 - (1 - sparse) / (prune_cfgs['prune_epochs'] - (1 - sparse) * i)
+            
         # 15s
         #start_time = time.time()
         prune.prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
@@ -160,7 +168,7 @@ def run(cfgs):
     if policy_cfgs['save_important'] is not None:
         for key, tensor_list in pruner.dict.items():
             pruner.dict[key] = [tensor.cpu() for tensor in tensor_list]
-        # checkdir(f"{os.getcwd()}/{dataset_path}/")
+        checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             # print(pruner.dict)
             pickle.dump(pruner.dict, fp)

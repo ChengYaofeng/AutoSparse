@@ -2,12 +2,12 @@
 set -x
 set -e
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=3
 
 python main.py  --experiment 'pretrain'\
-                --expid '0_Adam'\
+                --expid '0'\
                 --result-dir 'experiment/pretrain_resutls'\
-                --cfg 'cfgs/pretrain/mag_autos.yaml'\
+                --cfg 'cfgs/pretrain/res18/mag_autos.yaml'\
                 --batchsize 4096\
-                --lr 0.0001 \
+                --lr 0.01 \
                 --seed 0

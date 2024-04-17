@@ -64,6 +64,25 @@ class ResNet18(nn.Module):
         combined = torch.cat((params.unsqueeze(-1), grads.unsqueeze(-1)), dim=1)
         mlp_output = self.mlp(combined).reshape(-1, 3, 32, 32)  # 修改此处
         return self.resnet18(mlp_output)
+    
+class ResNet50(nn.Module):
+    def __init__(self):
+        super(ResNet50, self).__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(2, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Linear(64, 64*16*3),
+            nn.BatchNorm1d(64*16*3),
+            nn.ReLU(),
+        )
+
+        self.resnet18 = tinyimagenet_resnet.resnet50(32,1)
+
+    def forward(self, params, grads):
+        combined = torch.cat((params.unsqueeze(-1), grads.unsqueeze(-1)), dim=1)
+        mlp_output = self.mlp(combined).reshape(-1, 3, 32, 32)  # 修改此处
+        return self.resnet18(mlp_output)
 
 class Vgg19(nn.Module):
     def __init__(self):
