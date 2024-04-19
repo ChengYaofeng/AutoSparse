@@ -1,0 +1,24 @@
+
+train:
+  dataset: 'cifar10'
+  model: 'resnet18'
+  dataset_path: 'experiment/dataset_results/cifar10_resnet18_mag/batch64_lr0.01_num_pepoch20_seed0_00/dataset/data.pkl'
+  method: 'mag'
+  epochs: 10
+  train_batchsize: 1024
+  test_batchsize: 1024
+  lr: 0.01
+  prediction_model: 'resnet18'
+  save_name: 
+  # data: None
+
+prune:
+  pruner: 'mag'
+  prune_epochs: 0
+  schedule: 'pct'
+
+policy:
+  expid: 'cifar10_res18_20it_percent_mag'
+  gpu: 0
+  run_choice: prune_iterative #prune_iterative, prune_once, prune_prediction
+  seed: 1

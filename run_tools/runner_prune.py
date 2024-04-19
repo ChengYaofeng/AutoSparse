@@ -108,7 +108,7 @@ def run(cfgs):
         sparse = prune_cfgs['compression'][policy_cfgs['times']]
         prune_cfgs['prune_epochs'] = 1
         if policy_cfgs['autos_model'] != None:
-            prediction_model = torch.load(policy_cfgs['autos_model'], map_location=torch.device(device)).to(device)
+            prediction_model = torch.load(f"{os.getcwd()}/{policy_cfgs['autos_model']}", map_location=torch.device(device)).to(device)
         else:
             raise ValueError("No autos_model is given")
     
@@ -168,7 +168,6 @@ def run(cfgs):
     if policy_cfgs['save_important'] is not None:
         for key, tensor_list in pruner.dict.items():
             pruner.dict[key] = [tensor.cpu() for tensor in tensor_list]
-        checkdir(f"{os.getcwd()}/{dataset_path}/")
         with open(policy_cfgs['save_important'], 'wb') as fp:
             # print(pruner.dict)
             pickle.dump(pruner.dict, fp)

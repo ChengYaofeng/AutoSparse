@@ -10,4 +10,4 @@ python main.py  --experiment 'prune'\
                 --cfg 'cfgs/prune/autos/cifar10_res18_mag.yaml'\
                 --lr 0.01 \
                 --schedule 'pct' \
-                --autos_model '/home/cyf/Autosparse/experiment/pretrain_results/cifar10_resnet18_mag/batch4096_lr0.0001_pct_pepoch0_seed1_3/3_20240412-14-58/epoch4_model.pth' \
+                --autos_model 'experiment/pretrain_results/cifar10_resnet18_mag_pct/resnet18_batch1024_lr0.01_seed0_0/0_20240419-11-00/epoch5_model.pth' \

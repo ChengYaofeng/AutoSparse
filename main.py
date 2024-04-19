@@ -47,14 +47,28 @@ def main():
         
 
 def check_dir(exp, args, cfgs):
-    major_dir = f'experiment/{exp}/{cfgs["train"]["dataset"]}_{cfgs["train"]["model"]}_{cfgs["prune"]["pruner"]}'
+    if args.experiment == 'pretrain':
+        major_dir = f'experiment/{exp}/{cfgs["train"]["dataset"]}_{cfgs["train"]["model"]}_{cfgs["prune"]["pruner"]}_{cfgs["prune"]["schedule"]}'
+    else:
+        major_dir = f'experiment/{exp}/{cfgs["train"]["dataset"]}_{cfgs["train"]["model"]}_{cfgs["prune"]["pruner"]}'
+        
     try:
         os.makedirs(major_dir)
     except FileExistsError:
         pass
     
-    result_dir = f"{major_dir}/batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_{cfgs['prune']['schedule']}_pepoch{cfgs['prune']['prune_epochs']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
-                   #result_dir 在哪里设定的
+    if args.experiment == 'dataset':
+        result_dir = f"{major_dir}/batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_{cfgs['prune']['schedule']}_pepoch{cfgs['prune']['prune_epochs']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+    elif args.experiment == 'pretrain':
+        result_dir = f"{major_dir}/{cfgs['train']['prediction_model']}_batch{cfgs['train']['train_batchsize']}_lr{cfgs['train']['lr']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+    else:
+        if cfgs['prune']['pruner'] == 'autos':
+            path = args.autos_model
+            parts = path.split("/")
+            result_dir = f"{major_dir}/dataset_{parts[2]}/model_{parts[3]}/prune_{cfgs['prune']['schedule']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+        else:
+            result_dir = f"{major_dir}/prune_{cfgs['prune']['schedule']}_seed{cfgs['policy']['seed']}_{cfgs['policy']['expid']}"
+                       
     setattr(args, 'save', True)
     setattr(args, 'result_dir', result_dir) 
         ## 调试结束后记得保留回来
